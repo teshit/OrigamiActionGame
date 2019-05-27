@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour {
     public float moveForceMultiplier;    // 移動速度の入力に対する追従度
     public GameObject bullet;
 
-    bool isGround = true;        // 地面と接地しているか管理するフラグ
+    bool isGround = false;        // 地面と接地しているか管理するフラグ
     int key = 0;                 // 左右の入力管理
     string state;                // プレイヤーの状態管理
     string prevState;            // 前の状態を保存
@@ -40,10 +40,12 @@ public class PlayerController : MonoBehaviour {
     void GetInputKey()
     {
         key = 0;
-        if (Input.GetKey("right") || Input.GetKey("d"))
+        if ((Input.GetKey("right") || Input.GetKey("d")))
             key = 1;
-        else if (Input.GetKey("left") || Input.GetKey("a"))
+        else if ((Input.GetKey("left") || Input.GetKey("a") ))
             key = -1;
+
+        //マウス左クリックでshot
         if (Input.GetMouseButtonDown(0))
         {
             Instantiate(bullet, this.transform.position, Quaternion.identity);
@@ -168,6 +170,14 @@ public class PlayerController : MonoBehaviour {
         {
             if (!isGround)
                 isGround = true;
+        }
+    }
+
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.gameObject.tag == "Ground")
+        {
+
         }
     }
 }
