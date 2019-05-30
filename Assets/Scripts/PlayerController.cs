@@ -17,8 +17,8 @@ public class PlayerController : MonoBehaviour {
     int key = 0;                 // 左右の入力管理
     string state;                // プレイヤーの状態管理
     string prevState;            // 前の状態を保存
-    float stateEffect = 1;       // 状態に応じて横移動速度を変えるための係数
     Vector3 mousePos;
+    bool isShooting;
 
 
 
@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour {
         ChangeState();          // ② 状態を変更する
         ChangeAnimation();      // ③ 状態に応じてアニメーションを変更する
         Move();                 // ④ 入力に応じて移動する
+        Debug.Log(isShooting);
     }
 
     void GetInputKey()
@@ -49,6 +50,8 @@ public class PlayerController : MonoBehaviour {
         if (Input.GetMouseButtonDown(0))
         {
             Instantiate(bullet, this.transform.position, Quaternion.identity);
+            state = "SHOT";
+            StartCoroutine(ShootingAnimation(0.1f));
         }
     }
 
@@ -71,7 +74,8 @@ public class PlayerController : MonoBehaviour {
             }
             else
             {
-                state = "IDLE";
+                if (isShooting) state = "SHOT";
+                else state = "IDLE";
             }
             // 空中にいる場合
         }
@@ -102,30 +106,32 @@ public class PlayerController : MonoBehaviour {
                     animator.SetBool("isFall", false);
                     animator.SetBool("isRun", false);
                     animator.SetBool("isIdle", false);
-                    stateEffect = 0.5f;
                     break;
                 case "FALL":
                     animator.SetBool("isFall", true);
                     animator.SetBool("isJump", false);
                     animator.SetBool("isRun", false);
                     animator.SetBool("isIdle", false);
-                    stateEffect = 0.5f;
                     break;
                 case "RUN":
                     animator.SetBool("isRun", true);
                     animator.SetBool("isFall", false);
                     animator.SetBool("isJump", false);
                     animator.SetBool("isIdle", false);
-                    stateEffect = 1f;
                     //GetComponent<SpriteRenderer> ().flipX = true;
                     //transform.localScale = new Vector3(key, 1, 1); // 向きに応じてキャラクターのspriteを反転
+                    break;
+                case "SHOT":
+                    animator.SetBool("isIdle", false);
+                    animator.SetBool("isJump", false);
+                    animator.SetBool("isShot", true);
                     break;
                 default:
                     animator.SetBool("isIdle", true);
                     animator.SetBool("isFall", false);
                     animator.SetBool("isRun", false);
                     animator.SetBool("isJump", false);
-                    stateEffect = 1f;
+                    animator.SetBool("isShot", false);
                     break;
             }
             // 状態の変更を判定するために状態を保存しておく
@@ -179,5 +185,12 @@ public class PlayerController : MonoBehaviour {
         {
 
         }
+    }
+
+    IEnumerator ShootingAnimation(float sec)
+    {
+        isShooting = true;
+        yield return new WaitForSeconds(sec);
+        isShooting = false;
     }
 }
